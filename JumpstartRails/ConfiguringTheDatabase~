@@ -1,0 +1,26 @@
+
+
+
+
+THIS FILE(database.yml) controls how Rails' database connection system will acces your database. 
+the database will be stored in db/development.sqlite3
+
+Rails uses migration files to perform modifications to the database. Almost any modification you can make to a DB can be done through a migration.
+
+------------------------/
+Models In the Blog	/
+------------------------/
+
+Blog will be centered around articles so we need a table for them to be stored and a model to allow our rails app to work with the data. 
+
+We’re running the generate script, telling it to create a model, and naming that model Article. From that information, Rails creates the following files:
+
+    db/migrate/(some_time_stamp)_create_articles.rb : A database migration to create the articles table
+    app/models/article.rb : The file that will hold the model code
+    test/models/article_test.rb : A file to hold unit tests for Article
+    test/fixtures/articles.yml : A fixtures file to assist with unit testing
+
+
+To save a migration file, switch over to your terminal, and run this command:
+
+"bin/rake db:migrate"

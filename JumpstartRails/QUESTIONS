@@ -1,0 +1,15 @@
+QUESTIONS:
+
+What is a resources in the router in RoR?
+
+What are Strong Parameters exactly?
+
+"Remember that the code inside the change method is to migrate the database forward". What does this mean?
+
+What exactly is mass assignment?
+
+What is "multipart data"?
+
+Create, read, update, and destroy (CRUD) support for our models.
+
+What is a scaffold?

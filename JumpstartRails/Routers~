@@ -1,0 +1,14 @@
+Routers
+
+
+When a Rails server gets a request from a web browser it first goes to the router. The router decides what the request is trying to do, what resources it is trying to interact with.
+
+When the router knows how to handle requests about articles, it needs a place to actually send those requests, the Controller.
+
+
+
+Adding links and new routes:	/
+--------------------------------/
+
+
+

@@ -1,0 +1,5 @@
+COntrollers:
+
+Controllers are middlemen in the MVC framework. They should know as little as necessary about the other components to get the job done.
+
+ gives us back a hash, params[:article] gives us back the nested hash, and params[:article][:title] gives us the string from the form.

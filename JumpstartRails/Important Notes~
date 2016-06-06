@@ -1,0 +1,104 @@
+Important Notes
+
+
+While most browsers support all four verbs, GET, PUT, POST, and DELETE, HTML links are always GET, and HTML forms only support GET and POST.
+
+
+Partials are a way of packaging reusable view template code.Partials filenames always start with an underscore.
+
+If you look in app/views/layouts/application.html.erb you’ll find what is called the "application layout". A layout is used to wrap multiple view templates in your application. You can create layouts specific to each controller, but most often we’ll just use one layout that wraps every view template in the application.
+
+The yield is where the view template content will be injected.
+
+
+Relationships	/
+----------------/
+The power of SQL databases is the ability to express relationships between elements of data. Here we join together an article in the articles table with its comments in the comments table. We do this by using foreign keys.
+Foreign keys are a way of marking one-to-one and one-to-many relationships. An article might have zero, five, or one hundred comments. But a comment only belongs to one article. These objects have a one-to-many relationship – one article connects to many comments.
+
+When we created the migration for comments we started with an references field named article. The Rails convention for a one-to-many relationship:
+
+    the objects on the "many" end should have a foreign key referencing the "one" object.
+    that foreign key should be titled with the name of the "one" object, then an underscore, then "id".
+
+Now an article "has many" comments, and a comment "belongs to" an article. We have explained to Rails that these objects have a one-to-many relationship.
+
+
+Adding tags	/
+----------------/
+Tagging model relationships: Now that our model files are generated we need to tell Rails about the relationships between them.
+
+In Rails we can express this "has many" relationship through an existing "has many" relationship.
+
+Now if we have an object like article we can just ask for article.tags or, conversely, if we have an object named tag we can ask for tag.articles.
+
+--------------------------------/
+a = Article.first		/	
+a.tags.create name: "tag1"	/
+--------------------------------/
+The first command assigns the first element of the Articles table to variable 'a'.
+The second creates a new tag: It creates a new tag related to 'a', and the tag is called 'tag1'. So it uses an existing relation:
+	 articles ->(through) taggings ->(to) tags
+This inserts a new row into tags AND taggings. 
+	 INSERT INTO "tags" ("name:tag1", "created_at:date", "updated_at:date")
+	INSERT INTO "taggings" ("article_id:1", "tag_id:1", "created_at:date", "updated_at:date")
+
+So the Taggings table shows the relationship by id number bt/w tags and articles.
+
+After adding tagging funciontality: "Unpermitted parameter: tag_list" when trying to edit tags. because of "Strong Parameters" we used before. LOOK THIS UP
+
+Since the create method passes all the parameters from the form into the Article.new method, the tags are sent in as the string "technology, ruby". The new method will try to set the new Article’s tag_list equal to "technology, ruby" but that method doesn’t exist because there is no attribute named tag_list.
+
+The Article#tag_list= method accepts a parameter, a string like "tag1, tag2, tag3" and we need to associate the article with tags that have those names.
+
+
+
+--------/
+Gems	/
+--------/
+These days, all Rails plugins are now ‘gems.’ RubyGems is a package management system for Ruby.
+There are central servers that host libraries, and we can install those libraries on our machine with a single command. RubyGems takes care of any dependencies, allows us to pick any options if necessary, and installs the library.
+
+When you’re writing a production application, you might specify additional parameters that require a specific version or a custom source for the library.
+
+Any time we want to make a change to the database we’ll need a migration.
+
+The gem is loaded, the database is ready, but we need to tell our Rails application about the image attachment we want to add in the model.
+
+
+Layout	/
+--------/
+Rails and Ruby both emphasize the idea of "D.R.Y." – Don’t Repeat Yourself. In the area of view templates, we can achieve this by creating a layout. A layout is a special view template that wraps other views.
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Whatever code is in the individual view template gets inserted into the layout where you see the yield. Using layouts makes it easy to add site-wide elements like navigation, sidebars, and so forth.
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+There’s that huge comment there that explains it: the require_tree . line automatically loads all of the stylesheets in the current directory, and includes them in application.css. Fun! This feature is called the asset pipeline, and it’s pretty new to Rails. It’s quite powerful.
+
+
+Authentication	/
+----------------/
+
+Sorcery is a lightweight and straightforward authentication service gem. It strikes a good balance of functionality and complexity.
+
+Rails has two scaffold generators: scaffold and scaffold_controller. The scaffold generator generates the model, controller and views. The scaffold_controller will generate the controller and views. We are generating a scaffold_controller instead of scaffold because Sorcery has already defined for us an Author model.
+
+The password and password_confirmation fields are sometimes referred to as "virtual attributes" because they are not actually being stored in the database. Instead, Sorcery uses the given password along with the automatically generated salt value to create and store the crypted_password value.
+
+Logging in	/
+----------------/
+
+As is common for Rails apps, the new action is responsible for rendering the related form, the create action accepts the submission of that form, and the destroy action removes a record of the appropriate type. In this case, our records are the Author objects that represent a logged-in user.
+
+The create action handles the logic for logging in, based on the parameters passed from the rendered form: email and password. If the login is successful, the user is redirected to the articles index, or if the user had been trying to access a restricted page, back to that page. If the login fails, we’ll re-render the login form. The destroy action calls the logout method provided by Sorcery and then redirects. we only want to open a smaller set of actions.
+
+
+
+
+
+
+
+
+
+

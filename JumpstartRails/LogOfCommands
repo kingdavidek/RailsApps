@@ -1,0 +1,360 @@
+Log of commands run:	/
+--------------------	/
+------------------------/
+I0	/------------------------------------------------------------------------------------------------------------------------
+--------/
+
+
+rails new blogger
+
+bin/rails server
+
+Edited migration file to add columns to the db table for "articles" 
+
+bin/rails generate model Article
+
+bin/rake db:migrate
+
+Running Rails Console:
+	bin/rails console
+	Time.now
+	Article.all
+	Article.new
+	a = Article.new
+	a.title = "Sample Article Title"
+	a.body = "This is the text for my article, woo hoo!"
+	a.save
+	Article.all
+
+Edited routes.rb to include "resources :articles"
+
+bin/rake routes
+
+bin/rails generate controller articles
+
+added index method in controller to get all articles
+
+created a view file called index.html.erb to display these articles.
+
+added a helper in the view to link to a single article when a link is pressed. 
+		<%= link_to article.title, article_path(article) %>
+		which the html will see as: <a href="/articles/1">First Sample Article</a>
+
+We add an "Add a new article" link, looking to the routing table ("rake routes") for the "new" action, and therefore getting the helper required: new_article_path
+
+we add CSS styling to the links by adding classes. 
+
+Using the params method (which returns a hash of the request parameters) in the show method in the controller, we can access the article requested by it's id.
+
+Added a 'show' view and added code to fetch the article.
+
+
+
+--------/
+I1	/----------------------------------------------------------------------------------------------------------------------------------
+--------/
+
+Created action in controller for 'new'
+
+Create a view new.html.rb
+
+Wrote a form to submit articles: 
+
+Write a 'create' method in controller.
+	data of form from 'new' is processed before being displayed using the show action. Data is accessible using the params method.
+	Do this by adding 'fail' in the create method.
+			fail is useful here because it will cause the page to display the parameters of the form. 
+ 
+Rewrite the 'create' method after identifying parameters and make it submit a new article to the database, and redirect to the 'show' view for the article in question.
+
+Add StrongParameters helper method to the helper method page:  app/helpers/articles_helper.rb in order to reduce code in controller.
+
+Add delete article functionality to 'show' page.
+	The helper method for the destroy-triggering route is article_path. It needs to know which article to delete since there’s an :id in the path (check rake routes)
+
+Change the verb of the request such that the server sees DELETE and not GET by adding method: :delete to erb code. 
+
+Define the Rails destroy action so that delete actually does deletes the article and redirects to the index page.
+
+Add a confirm prompt to the link_to call in your 'show'.
+
+add a link_to call in 'show' to edit articles.
+
+create edit method in controller.
+
+create edit.html.erb view as a form.
+
+apply DRY by: "abstract this form into a single file called a partial, then reference this partial from both new.html.erb and edit.html.erb."
+
+Add partial code to relevant pages
+
+write the update method. 
+
+add flash to controller methods to give user messages of what just happened. 
+
+add flash to respective viewers to complete this. Better, add it to the layout as it will be repeated.
+
+make the list of articles page the root page in routes.rb
+
+
+--------/
+I2	/----------------------------------------------------------------------------------------------------------------------------------
+--------/
+Comments/
+--------/
+
+Brainstorm what a comment is. What kind of data it has.
+	attached to an article
+	has an author name
+	has a body
+
+bin/rails generate model Comment author_name:string body:text article:references
+
+check migration file to see whats in there
+
+bin/rake db:migrate
+
+establish database relationships between comments and articles in the respective models.
+Now observe what these do
+a = Article.first
+a.commentsComment.new
+a.comments.new
+a.comments
+
+c = a.comments.new
+c.author_name = "Daffy Duck"
+c.body = "I think this article is thhh-thhh-thupid!"
+c.save
+d = a.comments.create(author_name: "Chewbacca", body: "RAWR!")
+
+a.reload
+a.comments
+
+Edit the show articles view to include a partial for comments.
+
+write the new partial to render comments
+
+Add this for web interface for adding comments: <%= render partial: 'comments/form' %>
+
+create the directory and file needed.
+
+create blank comment object inside the 'show' method to see what fields it has
+
+edit the partial comment form to actually be a form
+
+Open config/routes.rb and update your article to specify comments as a sub-resource.
+
+We need to write a path to comments:
+bin/rails generate controller comments
+
+Write a create method in the comment controller.
+
+assign article id to the comment
+
+include comment_params method in controller
+
+Add a comments count in the view 'show'
+
+Change labels on comments form to something catchier
+
+Add timestamp to comment display
+
+
+--------/
+I3	/----------------------------------------------------------------------------------------------------------------------------------
+--------/
+Tags	/
+--------/
+
+Introduce a model 'Tagging', which is a connection between articles and tags. The relationship is set up like this;	
+    An Article has_many Taggings 		(where a tagging is a relationship between an article and a tag)
+    A Tag has_many Taggings
+    A Tagging belongs_to an Article and belongs_to a Tag
+
+Create new model based on these relationships:
+	Tag, and Tagging.
+
+bin/rails generate model Tag name:string
+
+bin/rails generate model Tagging tag:references article:references
+
+bin/rake db:migrate
+
+Edit: app/models/article.rb to add  "has_many :taggings"
+
+Edit: app/models/tag.rb  to add "has_many :taggings"
+
+Express relationship between models and taggings in the tags.rb and articles.rb model files.
+
+
+a = Article.first
+a.tags.create name: "tag1"
+a.tags.create name: "tag2"
+a.tags
+	This last command get all the tags of the one article like this:
+SELECT "tags".* FROM "tags" INNER JOIN "taggings" ON "tags"."id" = "taggings"."tag_id" WHERE "taggings"."article_id" = ?  [["article_id", 1]]
+
+Add section to partial form to insert tags.
+
+Create new method tag_list in the MODEL 'article.rb' to define this action.
+
+See what happens following these commands:
+reload!
+a = Article.first
+a.tag_list
+
+Edit tag_list method: 	convert all tag objects to an array of tag names.
+			Join array of tag names together.
+
+Alternatively can also override the default to_s method in the tags model
+
+Edit the article_params helper to include tags
+
+Now there is still an error, why?
+
+We need to create a method in articles.rb which accepts the tags_string parameter input.
+
+Edit the method so that it converts that array into individual tag entries. 
+
+Edit method and controller so that it stores tags with articles.
+
+edit show.html.erb to show the tags of the article in the view.
+
+create a NEW controller for tags and a new route for them in routes.rb (we created a model but neither of these before.)
+	bin/rails generate controller tags
+	
+Define a 'show' action for the new tags controller which will work when the tag is clicked. This will list articles associated with that tag?
+
+Create a 'show' view for the tags controller!!
+
+
+--------/
+I4	/----------------------------------------------------------------------------------------------------------------------------------
+--------/
+Gems	/
+--------/
+
+
+Edit gemfile to include paperclip
+
+in terminal, type "brew install imagemick" (didn't work. Tried sudo apt-get
+
+bundle install
+
+restart server
+
+We need to add images to our article db therefore: "bin/rails generate migration add_paperclip_fields_to_article"
+
+open newly created migration file.
+
+in the method, add relevant columns to the db.
+
+rake db:migrate
+
+edit article model to update this.
+	"The has_attached_file method is part of the paperclip library."
+
+We have to deal with mass assignment. Modify articles_helper.rb and update article_params to permit :image.
+
+Edit the partial form in articles directory to include image upload. 
+
+Change top line in partial to accept "multipart" data
+
+Add label field in form to include file upload.
+
+check rails console to see if image upload worked.
+	a = Article.find(1)
+	a.image
+
+edit show.html.erb to display image in the browser
+
+edit the _form partial to inform user that an image is present.
+    If the article has an image filename *Display the image
+    Then display the file_field button with the label "Attach a New Image"
+
+Add same conditional to the 'show' view. 
+
+Add automatic image resizing to model. 
+
+Then in your view, to display a specific version, you just pass in an extra parameter like this:
+	<%= image_tag @article.image.url(:medium) %>
+
+
+----------------/
+I5		/----------------------------------------------------------------------------------------------------------------------------------
+----------------/
+Authentication	/
+----------------/
+
+
+Add gem 'sorcery' to gemfile
+
+bundle install
+
+rails generate		(check if it available)
+
+rename the default model created by Sorcery from "User" to "Author"
+	bin/rails generate sorcery:install --model=Author
+
+look at the SorceryCore migration that the generator created before we migrate the database.
+
+edit sorcery migration file to include columns for new database and conditions on each column
+
+Look to see what is inside model author.rb
+
+bin/rails generate scaffold_controller Author username:string email:string password:password password_confirmation:password
+
+update newly created authors/_form.html.erb to put password field and password confirmation to use password text entry.
+
+In the model, define the relationship between password and password confirmation, which need to be the same in order for the form to complete.
+
+The generator did not add a resource for our Authors, update the routes.rb file. 
+
+Edit authors/show.html.erb to remove password and password confirmation from the author's page
+
+Remove from author/index as well. 
+
+Sorcery provides a couple of methods for our views that can help us out: current_user and logged_in?
+	
+Add footer to the layout that show whether or not a current user is logged in.
+
+In order to actually be able to log in though, we need to add controllers for logging in/out
+	bin/rails generate controller AuthorSessions
+
+add new, create, and destroy methods to app/controllers/author_sessions_controller.rb
+
+create the template for the new action that contains the login form, in app/views/author_sessions/new.html.erb
+
+edit routes so that we can access these new actions from the browser.
+
+bin/rake routes
+
+update footer to include links to log in and log out pages for authors.
+
+restart rails server to check login/logout
+
+add in a protection scheme like this to the new users form:
+    If there are zero users in the system, let anyone access the form
+    If there are more than zero users registered, only users already logged in can access this form
+
+We can create a before_filter which will run before the new and create actions of our authors_controller.rb
+
+We need to secure the rest of the application.
+we need to do is sprinkle before_filters on most of our controllers:
+    In authors_controller, add a before filter to protect the actions besides new and create like this:
+    before_filter :require_login, except: [:new, :create]
+    In author_sessions_controller all the methods need to be accessible to allow login and logout
+    In tags_controller, we need to prevent unauthenticated users from deleting the tags, so we protect just destroy. Since this is only a single action we can use :only like this:
+    before_filter :require_login, only: [:destroy]
+    In comments_controller, we never implemented index and destroy, but just in case we do let’s allow unauthenticated users to only access create:
+    before_filter :require_login, except: [:create]
+    In articles_controller authentication should be required for new, create, edit, update and destroy. Figure out how to write the before filter using either :only or :except
+
+
+
+
+
+We now have the concept of authenticated users, represented by our Author class, in our blogging application, and it’s authors who are allowed to create and edit articles. What could be done to make the ownership of articles more explicit and secure, and how could we restrict articles to being edited only by their original owner?
+We could add a column to articles db which states which user created it. Then we could make edit/delete only available to that user. ie. check article.author to show the article edit delete buttons. 
+
+

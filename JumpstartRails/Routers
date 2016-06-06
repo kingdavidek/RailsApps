@@ -1,0 +1,14 @@
+Routers
+
+
+When a Rails server gets a request from a web browser it first goes to the router. The router decides what the request is trying to do, what resources it is trying to interact with.
+
+When the router knows how to handle requests about articles, it needs a place to actually send those requests, the Controller.
+
+
+
+Adding links and new routes:	/
+--------------------------------/
+
+
+We’ll use the link_to helper, we want it to display the text "Create a New Article", and where should it point? Look in the routing table for the new action, that’s where the form to create a new article will live. You’ll find the name new_article, so the helper is new_article_path.
